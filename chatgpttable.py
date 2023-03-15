@@ -12,14 +12,35 @@ data = [
 header = ['Name', 'Age', 'Gender']
 
 # Layout GUI
-layout = [
+input_column = [
     [sg.Text('Name:'), sg.InputText(key='name')],
     [sg.Text('Age:'), sg.InputText(key='age')],
     [sg.Text('Gender:'), sg.InputText(key='gender')],
-    [sg.Button('Add'), sg.Button('Exit')],
+    [sg.Button('Add'), sg.Button('Exit')]
+]
+
+table_column = [
     [sg.Table(values=data, headings=header, max_col_width=25,
               auto_size_columns=True, justification='center',
-              num_rows=min(25, len(data)), key='table')],
+              num_rows=min(25, len(data)), key='table')]
+]
+
+# layout = [
+#     [sg.Text('Name:'), sg.InputText(key='name')],
+#     [sg.Text('Age:'), sg.InputText(key='age')],
+#     [sg.Text('Gender:'), sg.InputText(key='gender')],
+#     [sg.Button('Add'), sg.Button('Exit')],
+#     [sg.Table(values=data, headings=header, max_col_width=25,
+#               auto_size_columns=True, justification='center',
+#               num_rows=min(25, len(data)), key='table')],
+# ]
+
+layout = [
+    [
+        sg.Column(input_column),
+        sg.VSeperator(),
+        sg.Column(table_column),
+    ]
 ]
 
 # Membuat Window
