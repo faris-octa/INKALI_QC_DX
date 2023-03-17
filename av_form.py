@@ -10,11 +10,18 @@ data = [
 # Header untuk tabel
 header = ['Berat Sample', 'Jumlah Titran', 'Faktor Buret', 'Faktor NaOH', 'AV']
 
+### improvement feature ###
+# df = pd.read_csv('C:/Data/dummydata.csv')
+# data = df.values.tolist()
+# headings = df.columns.tolist()
+
 # Layout GUI
 header_column = [
-    [sg.Text('Acid Value Form')],
-    [sg.Text('INKALI QC')]
+    [sg.Text('Acid Value Form', font=('Arial', 20), justification='center')],
+    [sg.Text('INKALI QC', font=('Arial', 15), justification='center')]
 ]
+
+sample_identity_column = sg.Column([[sg.Text("identitas")]], justification='right')
 
 input_column = sg.Column([
     [sg.Frame('Input Sample:',[[sg.Text('Berat Sample:', size=10), sg.InputText(key='-BERAT-SAMPLE-', size=(20,1))],
@@ -26,9 +33,9 @@ input_column = sg.Column([
 ], pad=(0,0))
 
 table_column = [
-    [sg.Table(values=data, headings=header, max_col_width=25,
-              auto_size_columns=True, justification='center',
-              num_rows=7, key='-TABLE-')]  #num_rows=min(25, len(data))
+    [sg.Table(values=data, headings=header, def_col_width=12 , max_col_width=25,
+              auto_size_columns=False, justification='center',
+              num_rows=7, display_row_numbers=True, background_color='black', key='-TABLE-')]  #num_rows=min(25, len(data))
 ]
 
 
@@ -38,7 +45,7 @@ layout = [
     [
         input_column,
         sg.VSeperator(),
-        sg.Column(table_column),
+        sg.Column(table_column, vertical_alignment='Top'),
     ],
     [sg.Sizegrip()]
 ]
