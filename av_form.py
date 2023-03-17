@@ -12,7 +12,8 @@ header = ['Berat Sample', 'Jumlah Titran', 'Faktor Buret', 'Faktor NaOH', 'AV']
 
 # Layout GUI
 header_column = [
-    [sg.Text('Ini Header')]
+    [sg.Text('Acid Value Form')],
+    [sg.Text('INKALI QC')]
 ]
 
 input_column = sg.Column([
@@ -24,51 +25,27 @@ input_column = sg.Column([
     [sg.Button('Clear'), sg.Button('Add', size=5 ,pad=(0,0))]
 ], pad=(0,0))
 
-col1 = sg.Column([
-    # Categories sg.Frame
-    [sg.Frame('Categories:',[[ sg.Radio('Websites', 'radio1', default=True, key='-WEBSITES-', size=(10,1)),
-                            sg.Radio('Software', 'radio1', key='-SOFTWARE-',  size=(10,1))]],)],
-    # Information sg.Frame
-    [sg.Frame('Information:', [[sg.Text(), sg.Column([[sg.Text('Account:')],
-                             [sg.Input(key='-ACCOUNT-IN-', size=(19,1))],
-                             [sg.Text('User Id:')],
-                             [sg.Input(key='-USERID-IN-', size=(19,1)),
-                              sg.Button('Copy', key='-USERID-')],
-                             [sg.Text('Password:')],
-                             [sg.Input(key='-PW-IN-', size=(19,1)),
-                              sg.Button('Copy', key='-PASS-')],
-                             [sg.Text('Location:')],
-                             [sg.Input(key='-LOC-IN-', size=(19,1)),
-                              sg.Button('Copy', key='-LOC-')],
-                             [sg.Text('Notes:')],
-                             [sg.Multiline(key='-NOTES-', size=(25,5))],
-                             ], size=(235,350), pad=(0,0))]])], ], pad=(0,0))
-
-# input_column = [
-#     [sg.Text('Berat Sample:'), sg.InputText(key='-BERAT-SAMPLE-')],
-#     [sg.Text('Jumlah Titran:'), sg.InputText(key='-JUMLAH-TITRAN-')],
-#     [sg.Text('Faktor Buret:'), sg.InputText(key='-FAKTOR-BURET-')],
-#     [sg.Button('Add'), sg.Button('Exit')]
-# ]
-
 table_column = [
     [sg.Table(values=data, headings=header, max_col_width=25,
               auto_size_columns=True, justification='center',
-              num_rows=min(25, len(data)), key='-TABLE-')]
+              num_rows=7, key='-TABLE-')]  #num_rows=min(25, len(data))
 ]
 
 
 layout = [
     [sg.Column(header_column)],
+    [sg.HSeparator()],
     [
         input_column,
         sg.VSeperator(),
         sg.Column(table_column),
-    ]
+    ],
+    [sg.Sizegrip()]
 ]
 
 # Membuat Window
-window = sg.Window('Acid Value Form', layout, keep_on_top=True, finalize=True)
+window = sg.Window('Acid Value Form', layout, keep_on_top=True, finalize=True, resizable=True)
+window.set_min_size(window.size)
 
 # Loop event
 while True:
@@ -77,7 +54,7 @@ while True:
         break
     if event == 'Add':
         # Ambil input dari user
-        berat_sample = float(values['-BERAT-SAMPLE-'])
+        berat_sample = round(float(values['-BERAT-SAMPLE-']),2)
         jumlah_titran = float(values['-JUMLAH-TITRAN-'])
         faktor_buret = float(values['-FAKTOR-BURET-'])
         faktor_NaOH = float(values['-FAKTOR-NaOH-'])
