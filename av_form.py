@@ -26,13 +26,13 @@ header_column = [
 ]
 
 input_column = sg.Column([
-    [sg.Text('Lot:', size=10), sg.InputText(key='-LOT-', size=(20,1))],
-    [sg.Text('Operator QC:', size=10), sg.InputText(key='-OPERATOR-', size=(20,1))],
-    [sg.Frame('Input Sample:',[[sg.Text('Suhu (\xb0C):', size=10), sg.InputText(key='-SUHU-', size=(20,1))],
-                               [sg.Text('Berat Sample (gr):', size=10), sg.InputText(key='-BERAT-SAMPLE-', size=(20,1))],
-                               [sg.Text('Jumlah Titran (mL):', size=10), sg.InputText(key='-JUMLAH-TITRAN-', size=(20,1))],
-                               [sg.Text('Faktor Buret:', size=10), sg.InputText(key='-FAKTOR-BURET-', size=(20,1))],
-                               [sg.Text('Faktor NaOH:', size=10), sg.InputText(key='-FAKTOR-NaOH-', size=(20,1))]
+    [sg.Text('Lot:', size=10), sg.InputText(key='-LOT-', size=(12,1))],
+    [sg.Text('Operator QC:', size=10), sg.InputText(key='-OPERATOR-', size=(12,1))],
+    [sg.Text('Faktor Buret:', size=10), sg.InputText(key='-FAKTOR-BURET-', size=(12,1))],
+    [sg.Text('Faktor NaOH:', size=10), sg.InputText(key='-FAKTOR-NaOH-', size=(12,1))],
+    [sg.Frame('Input Sample:',[[sg.Text('Suhu (\xb0C):', size=10), sg.InputText(key='-SUHU-', size=(12,1))],
+                               [sg.Text('Berat Sample (gr):', size=10), sg.InputText(key='-BERAT-SAMPLE-', size=(12,1))],
+                               [sg.Text('Jumlah Titran (mL):', size=10), sg.InputText(key='-JUMLAH-TITRAN-', size=(12,1))]
                                ], pad=(0,0))],
     [sg.Button('Clear'), sg.Button('Add', size=5 ,pad=(0,0))]
 ], pad=(0,0))
@@ -60,6 +60,10 @@ layout = [
 sg.theme('DarkGreen7')
 window = sg.Window('Acid Value Form', layout, keep_on_top=False, finalize=True, resizable=True)
 window.set_min_size(window.size)
+
+
+# functions
+
 
 # Loop event
 while True:
@@ -97,8 +101,15 @@ while True:
                     instruksi = 'Lakukan cooling'
                 data.append([suhu, berat_sample, jumlah_titran, faktor_buret, faktor_NaOH, AV, instruksi])
             window['-TABLE-'].update(values=data)
+            window['-SUHU-']('')
+            window['-BERAT-SAMPLE-']('')
+            window['-JUMLAH-TITRAN-']('')
         except ValueError as e:
             sg.PopupError(str('Mohon input data dengan benar'))
+    if event == 'Clear':
+        for key in values:
+            if key != '-TABLE-':
+                window[key]('')
 
 # Keluar
 window.close()
