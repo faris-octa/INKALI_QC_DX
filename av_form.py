@@ -8,7 +8,7 @@ data = [
 ]
 
 # Header untuk tabel
-header = ['Suhu (\xb0C)', 'Berat Sample (gr)', 'Jumlah Titran (mL)', 'Faktor Buret', 'Faktor NaOH', 'AV', 'Instruksi']
+header = ['Reaksi (\xb0C)', 'Berat Sample (gr)', 'Jumlah Titran (mL)', 'Faktor Buret', 'Faktor NaOH', 'AV', 'Instruksi']
 
 # AV Standard
 bottom_std = 20.5
@@ -26,19 +26,19 @@ header_column = [
 ]
 
 input_column = sg.Column([
-    [sg.Text('Lot:', size=10), sg.InputText(key='-LOT-', size=(12,1))],
-    [sg.Text('Operator QC:', size=10), sg.InputText(key='-OPERATOR-', size=(12,1))],
-    [sg.Text('Faktor Buret:', size=10), sg.InputText(key='-FAKTOR-BURET-', size=(12,1))],
-    [sg.Text('Faktor NaOH:', size=10), sg.InputText(key='-FAKTOR-NaOH-', size=(12,1))],
-    [sg.Frame('Input Sample:',[[sg.Text('Suhu (\xb0C):', size=10), sg.InputText(key='-SUHU-', size=(12,1))],
-                               [sg.Text('Berat Sample (gr):', size=10), sg.InputText(key='-BERAT-SAMPLE-', size=(12,1))],
-                               [sg.Text('Jumlah Titran (mL):', size=10), sg.InputText(key='-JUMLAH-TITRAN-', size=(12,1))]
+    [sg.Text('Lot:', size=14), sg.InputText(key='-LOT-', size=(12,1))],
+    [sg.Text('Operator QC:', size=14), sg.InputText(key='-OPERATOR-', size=(12,1))],
+    [sg.Text('Faktor Buret:', size=14), sg.InputText(key='-FAKTOR-BURET-', size=(12,1))],
+    [sg.Text('Faktor NaOH:', size=14), sg.InputText(key='-FAKTOR-NaOH-', size=(12,1))],
+    [sg.Frame('Input Sample:',[[sg.Text('Reaksi (\xb0C):', size=14), sg.Combo(values=('Initial', '240', '120', 'Packing'), default_value='Initial', readonly=False, size=(10,1), k='-REAKSI-')],
+                               [sg.Text('Berat Sample (gr):', size=14), sg.InputText(key='-BERAT-SAMPLE-', size=(12,1))],
+                               [sg.Text('Jumlah Titran (mL):', size=14), sg.InputText(key='-JUMLAH-TITRAN-', size=(12,1))]
                                ], pad=(0,0))],
     [sg.Button('Clear'), sg.Button('Add', size=5 ,pad=(0,0))]
 ], pad=(0,0))
 
 table_column = [
-    [sg.Table(values=data, headings=header, col_widths=[8,14,14,12,12,10,20] , max_col_width=25,
+    [sg.Table(values=data, headings=header, col_widths=[10,14,14,10,11,10,20] , max_col_width=25,
               auto_size_columns=False, justification='center',
               num_rows=7, display_row_numbers=True, background_color='black', key='-TABLE-',)],   #num_rows=min(25, len(data))
     [sg.Submit(pad=(300, 5))]
@@ -73,7 +73,7 @@ while True:
     if event == 'Add':
         # Ambil input dari user
         try:
-            suhu = float(values['-SUHU-'])
+            reaksi = values['-REAKSI-']
             berat_sample = round(float(values['-BERAT-SAMPLE-']),2)
             jumlah_titran = float(values['-JUMLAH-TITRAN-'])
             faktor_buret = float(values['-FAKTOR-BURET-'])
@@ -81,27 +81,31 @@ while True:
             AV = round((jumlah_titran * faktor_buret * faktor_buret * faktor_NaOH * 5.61) / berat_sample, 4)
 
         # Logika
-            if suhu < 100:
-                instruksi = 'Lakukan pemanasan'
-                data.append([suhu, berat_sample, jumlah_titran, faktor_buret, faktor_NaOH, AV, instruksi])
+            if reaksi.lower() == 'packing':
+                instruksi = 'NG'
+                data.append([reaksi, berat_sample, jumlah_titran, faktor_buret, faktor_NaOH, AV, instruksi])
 
-            elif 100 <= suhu < 200:
+            elif float(reaksi) < 100:
+                instruksi = 'Lakukan pemanasan'
+                data.append([reaksi, berat_sample, jumlah_titran, faktor_buret, faktor_NaOH, AV, instruksi])
+
+            elif 100 <= float(reaksi) < 200:
                 if AV < bottom_std:
                     instruksi = 'Tambah Oleic Acid'
                 elif  bottom_std <= AV <= top_std:
                     instruksi = 'Packing'
                 else:
                     instruksi = 'Hubungi atasan'
-                data.append([suhu, berat_sample, jumlah_titran, faktor_buret, faktor_NaOH, AV, instruksi])
+                data.append([reaksi, berat_sample, jumlah_titran, faktor_buret, faktor_NaOH, AV, instruksi])
 
-            elif 200 <= suhu < 300:
+            elif 200 <= float(reaksi) < 300:
                 if AV > top_std:
                     instruksi = 'Tambah waktu pemanasan'
                 else:
                     instruksi = 'Lakukan cooling'
-                data.append([suhu, berat_sample, jumlah_titran, faktor_buret, faktor_NaOH, AV, instruksi])
+                data.append([reaksi, berat_sample, jumlah_titran, faktor_buret, faktor_NaOH, AV, instruksi])
             window['-TABLE-'].update(values=data)
-            window['-SUHU-']('')
+            window['-REAKSI-']('')
             window['-BERAT-SAMPLE-']('')
             window['-JUMLAH-TITRAN-']('')
         except ValueError as e:
@@ -110,6 +114,8 @@ while True:
         for key in values:
             if key != '-TABLE-':
                 window[key]('')
+    if event == 'Submit':
+        pass
 
 # Keluar
 window.close()
