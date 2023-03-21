@@ -1,5 +1,5 @@
 import PySimpleGUI as sg
-
+sg.theme('DarkGreen7')
 # Data awal untuk tabel
 data = [
     [70, 0.4028, 6.984, 1.0045, 1, 0, 'Lakukan pemanasan'],
@@ -57,7 +57,7 @@ layout = [
 ]
 
 # Membuat Window
-sg.theme('DarkGreen7')
+
 window = sg.Window('Acid Value Form', layout, keep_on_top=False, finalize=True, resizable=True)
 window.set_min_size(window.size)
 
@@ -116,7 +116,8 @@ while True:
             if key != '-TABLE-':
                 window[key]('')
     if event == 'Submit':
-        pass
+        for key in values:
+            print(key, ' = ',values[key])
 
 # Keluar
 window.close()
