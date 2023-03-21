@@ -63,7 +63,8 @@ window.set_min_size(window.size)
 
 
 # functions
-
+def to_table():
+    data.append([reaksi, berat_sample, jumlah_titran, faktor_buret, faktor_NaOH, AV, instruksi])
 
 # Loop event
 while True:
@@ -83,11 +84,11 @@ while True:
         # Logika
             if reaksi.lower() == 'packing':
                 instruksi = 'NG'
-                data.append([reaksi, berat_sample, jumlah_titran, faktor_buret, faktor_NaOH, AV, instruksi])
+                to_table()
 
-            elif float(reaksi) < 100:
+            elif reaksi.lower() == 'initial':
                 instruksi = 'Lakukan pemanasan'
-                data.append([reaksi, berat_sample, jumlah_titran, faktor_buret, faktor_NaOH, AV, instruksi])
+                to_table()
 
             elif 100 <= float(reaksi) < 200:
                 if AV < bottom_std:
@@ -96,14 +97,14 @@ while True:
                     instruksi = 'Packing'
                 else:
                     instruksi = 'Hubungi atasan'
-                data.append([reaksi, berat_sample, jumlah_titran, faktor_buret, faktor_NaOH, AV, instruksi])
+                to_table()
 
             elif 200 <= float(reaksi) < 300:
                 if AV > top_std:
                     instruksi = 'Tambah waktu pemanasan'
                 else:
                     instruksi = 'Lakukan cooling'
-                data.append([reaksi, berat_sample, jumlah_titran, faktor_buret, faktor_NaOH, AV, instruksi])
+                to_table()
             window['-TABLE-'].update(values=data)
             window['-REAKSI-']('')
             window['-BERAT-SAMPLE-']('')
