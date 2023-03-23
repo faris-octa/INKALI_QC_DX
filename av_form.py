@@ -87,7 +87,7 @@ while True:
                 to_table()
 
             elif reaksi.lower() == 'initial':
-                instruksi = 'Lakukan pemanasan'
+                instruksi = 'Lakukan pemanasan' 
                 to_table()
 
             elif 100 <= float(reaksi) < 200:
