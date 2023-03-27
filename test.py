@@ -18,8 +18,11 @@ data = []
 # edit this to change theme
 sg.theme('DarkGreen7')
 
-#### Layout ####
+# AV Standard
+bottom_std = 20.5
+top_std = 22.0
 
+#### Layout ####
 header_row = [
     [sg.Text('S1200-IK Acid Value Form', font=('Arial', 20), justification='center')],
     [sg.Text('INKALI QC', font=('Arial', 15), justification='center')]
@@ -29,9 +32,9 @@ table_column = [
     # LOT, Step, Waktu, Operator QC, Reaksi (°C), Berat Sample (gr), Jumlah Titran (mL) ,Faktor Buret,
     # Faktor NaOH, AV, Instruksi
     [sg.Table(values=data, headings=header, 
-              col_widths=[5,5,10,10,10,14,14,10,10,10,20], 
+              col_widths=[5,5,10,10,10,14,14,10,10,10,25], 
               auto_size_columns = False,
-              visible_column_map=[True, True, True, True, True, True, True, True, True, True, True],
+              visible_column_map=[False, True, True, False, True, True, True, False, False, True, True],
               justification = 'center',
               background_color = 'black',
               key='-TABLE-')],
@@ -62,11 +65,13 @@ layout = [
 ]
 
 #### functions ####
-# def add_row():
-#     new_row = [lot, step, operator, reaksi, 
-#             berat, titran,f_buret, f_NaOH, AV, Instruksi]
-#     pass
-
+def add_row():
+    new_row = [lot, step, waktu, operator, reaksi, berat_sample, 
+                jumlah_titran, faktor_buret, faktor_NaOH, AV, instruksi]
+    data.append(new_row)
+    window['-REAKSI-']('')
+    window['-BERAT-SAMPLE-']('')
+    window['-JUMLAH-TITRAN-']('')
 
 #### Window ####
 window = sg.Window('Acid Value Form (S1200-IK)', layout, keep_on_top=False, finalize=True, resizable=True)
@@ -76,15 +81,21 @@ while True:
     event, values = window.read()
     if event in (sg.WIN_CLOSED, None):
         break
+    
     if event == 'Submit':
         new_df = pd.DataFrame(data, columns=header)
         df = pd.concat([df, new_df], ignore_index=True)
         df.to_excel(EXCEL_FILE, sheet_name='S1200-IK', index=False)
         sg.popup('Data saved!')
+        for key in values:
+            window[key]('')
+        window.close()
+    
     if event == 'Clear':
         for key in values:
             if key != '-TABLE-':
                 window[key]('')
+    
     if event == 'Add':
         try:
             lot = values['-LOT-']
@@ -97,15 +108,37 @@ while True:
             faktor_buret = float(values['-FAKTOR-BURET-'])
             faktor_NaOH = float(values['-FAKTOR-NaOH-'])
             AV = round((jumlah_titran * faktor_buret * faktor_buret * faktor_NaOH * 5.61) / berat_sample, 4)
-            instruksi = 'testing purposes'
+            # instruksi = 'testing purposes'
+            
+            if reaksi.lower() == 'packing':
+                if  bottom_std <= AV <= top_std:
+                    instruksi = 'OK'
+                else:
+                    instruksi = 'NG'
+                add_row()
 
-            new_row = [lot, step, waktu, operator, reaksi, berat_sample, 
-                       jumlah_titran, faktor_buret, faktor_NaOH, AV, instruksi]
-            data.append(new_row)
+            elif 30 < float(reaksi) < 100:
+                instruksi = 'lakukan pemanasan hingga 240\xb0C'
+                add_row()
+
+            elif 100 <= float(reaksi) < 200:
+                if AV < bottom_std:
+                    instruksi = 'Tambah Oleic Acid'
+                elif  bottom_std <= AV <= top_std:
+                    instruksi = 'Packing'
+                else:
+                    instruksi = 'Hubungi atasan'
+                add_row()
+
+            elif 200 <= float(reaksi) < 260:
+                if AV > top_std:
+                    instruksi = 'Tambah waktu pemanasan'
+                else:
+                    instruksi = 'Lakukan cooling hingga 120\xb0C'
+                add_row()
+            
             window['-TABLE-'].update(values=data)
         except ValueError as e:
             sg.PopupError(str('Mohon input data dengan benar'))
-        pass
-        # RIP LOGIC
 
 window.close()
