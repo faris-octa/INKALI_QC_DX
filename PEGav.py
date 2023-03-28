@@ -1,33 +1,24 @@
-# from pathlib import Path
-from datetime import datetime
-import os
+from os.path import abspath
 import PySimpleGUI as sg
-import pandas as pd
-# import openpyxl
-
-# Connect to Excel
-# current_dir = Path(__file__).parent if '__file__' in locals() else Path.cwd()
-# EXCEL_FILE = current_dir / 'av.xlsx'
-# EXCEL_FILE = os.path.abspath('C:/Users/INKALI-PC/project/INKALI_QC_DX/av.xlsx')
-EXCEL_FILE = os.path.abspath('//192.168.0.47/0_server/Devtec/Production Engineering/08 OTHER/INDIVIDU/FARIS/Project/QC DX/avS1200.xlsx')
-# file:///\\192.168.0.47\0_server\Devtec\Production Engineering\LAPORAN TEST LABORATORIUM\KAIZEN, OPTIMASI PROSES, COST-DOWN\2022\PRESENT POLYSOFTER AQ-09 - OPTIMALISASI (ANANTA)-1.docx
-df = pd.read_excel(EXCEL_FILE, sheet_name='S1200-IK', header=0)
-# workbook = openpyxl.load_workbook(EXCEL_FILE)
-# sheet = workbook['S1200-IK']
-# header = [cell.value for cell in sheet[1]]
-header = df.columns.tolist()
-data = []
-
-# edit this to change theme
-sg.theme('DarkGreen7')
+from openpyxl import load_workbook
+from datetime import datetime
 
 # AV Standard
 bottom_std = 20.5
 top_std = 22.0
 
+# initiate excel file
+EXCEL_FILE = abspath('C:/Users/INKALI-PC/project/INKALI_QC_DX/pegav.xlsx')
+wb = load_workbook(EXCEL_FILE)
+ws = wb.active
+
+# initiate data structure
+header = [cell.value for cell in ws[1]]
+data = []
+
 #### Layout ####
 header_row = [
-    [sg.Text('S1200-IK Acid Value Form', font=('Arial', 20), justification='center')],
+    [sg.Text('PEG 600DO-IK Acid Value Form', font=('Arial', 20), justification='center')],
     [sg.Text('INKALI QC', font=('Arial', 15), justification='center')]
 ]
 
@@ -86,13 +77,19 @@ while True:
         break
     
     if event == 'Submit':
-        new_df = pd.DataFrame(data, columns=header)
-        df = pd.concat([df, new_df], ignore_index=True)
-        df.to_excel(EXCEL_FILE, sheet_name='S1200-IK', index=False)
+        for row in data:
+            ws.append(row)
+        wb.save(EXCEL_FILE)
+        print(data)
         sg.popup('Data saved!')
-        for key in values:
-            window[key]('')
-        window.close()
+
+        # new_df = pd.DataFrame(data, columns=header)
+        # df = pd.concat([df, new_df], ignore_index=True)
+        # df.to_excel(EXCEL_FILE, sheet_name='S1200-IK', index=False)
+        # sg.popup('Data saved!')
+        # for key in values:
+        #     window[key]('')
+        # window.close()
     
     if event == 'Clear':
         for key in values:
@@ -145,3 +142,8 @@ while True:
             sg.PopupError(str('Mohon input data dengan benar'))
 
 window.close()
+
+
+# # di akhir
+# for row in data:
+#     ws.append(row)

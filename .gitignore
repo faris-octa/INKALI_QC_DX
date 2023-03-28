@@ -2,3 +2,4 @@ venv
 build/
 chatgpttable.spec
 dist/
+__pycache__/
