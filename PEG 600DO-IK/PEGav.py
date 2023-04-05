@@ -4,11 +4,10 @@ from openpyxl import load_workbook
 from datetime import datetime
 
 # AV Standard
-bottom_std = 20.5
-top_std = 22.0
+std = 7.0
 
 # initiate excel file
-EXCEL_FILE = abspath('C:/Users/INKALI-PC/project/INKALI_QC_DX/pegav.xlsx')
+EXCEL_FILE = abspath('C:/Users/INKALI-PC/project/INKALI_QC_DX/PEG 600DO-IK/pegav.xlsx')
 wb = load_workbook(EXCEL_FILE)
 ws = wb.active
 
@@ -76,21 +75,16 @@ while True:
     if event in (sg.WIN_CLOSED, None):
         break
     
-    if event == 'Submit':
+    if event == 'Submit' and len(data) != 0:
         for row in data:
             ws.append(row)
         wb.save(EXCEL_FILE)
-        print(data)
+        # print(data) <- uncomment if want to debugging
         sg.popup('Data saved!')
-
-        # new_df = pd.DataFrame(data, columns=header)
-        # df = pd.concat([df, new_df], ignore_index=True)
-        # df.to_excel(EXCEL_FILE, sheet_name='S1200-IK', index=False)
-        # sg.popup('Data saved!')
-        # for key in values:
-        #     window[key]('')
-        # window.close()
-    
+        for key in values:
+            window[key]('')
+        window.close()
+  
     if event == 'Clear':
         for key in values:
             if key != '-TABLE-':
@@ -100,38 +94,35 @@ while True:
         try:
             lot = values['-LOT-']
             step = len(data) + 1
-            waktu = str(datetime.now().strftime("%H:%M"))
+            waktu = str(datetime.now().strftime("%m/%d/%Y %H:%M"))
             operator = values['-OPERATOR-']
             reaksi = values['-REAKSI-']
             berat_sample = round(float(values['-BERAT-SAMPLE-']),2)
             jumlah_titran = float(values['-JUMLAH-TITRAN-'])
             faktor_buret = float(values['-FAKTOR-BURET-'])
             faktor_NaOH = float(values['-FAKTOR-NaOH-'])
-            AV = round((jumlah_titran * faktor_buret * faktor_buret * faktor_NaOH * 5.61) / berat_sample, 4)
-            # instruksi = 'testing purposes'
+            AV = round((jumlah_titran * faktor_buret * faktor_NaOH * 5.61) / berat_sample, 4)
             
             if reaksi.lower() == 'packing':
-                if  bottom_std <= AV <= top_std:
+                if  0< AV < std:
                     instruksi = 'OK'
                 else:
                     instruksi = 'NG'
                 add_row()
 
-            elif 30 < float(reaksi) < 100:
-                instruksi = 'lakukan pemanasan hingga 240\xb0C'
+            elif 30 < float(reaksi) < 100 or 170 <= float(reaksi) < 200:
+                instruksi = 'lakukan pemanasan hingga 225\xb0C'
                 add_row()
 
-            elif 100 <= float(reaksi) < 200:
-                if AV < bottom_std:
-                    instruksi = 'Tambah Oleic Acid'
-                elif  bottom_std <= AV <= top_std:
+            elif 100 <= float(reaksi) < 170:
+                if 1 < AV < std:
                     instruksi = 'Packing'
                 else:
                     instruksi = 'Hubungi atasan'
                 add_row()
 
-            elif 200 <= float(reaksi) < 260:
-                if AV > top_std:
+            elif 200 <= float(reaksi) < 240:
+                if AV > std:
                     instruksi = 'Tambah waktu pemanasan'
                 else:
                     instruksi = 'Lakukan cooling hingga 120\xb0C'
@@ -142,8 +133,3 @@ while True:
             sg.PopupError(str('Mohon input data dengan benar'))
 
 window.close()
-
-
-# # di akhir
-# for row in data:
-#     ws.append(row)

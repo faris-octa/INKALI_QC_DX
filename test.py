@@ -110,7 +110,7 @@ while True:
             jumlah_titran = float(values['-JUMLAH-TITRAN-'])
             faktor_buret = float(values['-FAKTOR-BURET-'])
             faktor_NaOH = float(values['-FAKTOR-NaOH-'])
-            AV = round((jumlah_titran * faktor_buret * faktor_buret * faktor_NaOH * 5.61) / berat_sample, 4)
+            AV = round((jumlah_titran * faktor_buret * faktor_NaOH * 5.61) / berat_sample, 4)
             # instruksi = 'testing purposes'
             
             if reaksi.lower() == 'packing':
