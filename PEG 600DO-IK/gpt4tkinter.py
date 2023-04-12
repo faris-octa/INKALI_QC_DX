@@ -1,25 +1,26 @@
 import os
-import datetime
-
 import tkinter as tk
 from tkinter import ttk
-import pandas as pd
 from tkinter import messagebox
-import openpyxl
+import pandas as pd
+import datetime
 
 app = tk.Tk()
-app.title("Acidity Value Calculator")
-app.geometry("850x400")
+app.title("AV Calculator")
+app.configure(bg="#f0f0f0")
 
-labels = [
-    "LOT",
-    "Operator",
-    "Faktor buret",
-    "Faktor NaOH",
-    "Reaksi",
-    "Berat sample",
-    "Jumlah titran",
-]
+if os.path.exists("av.xlsx"):
+    df = pd.read_excel("av.xlsx")
+    columns = pd.read_excel("av.xlsx", nrows=0).columns.tolist()
+else:
+    columns = [
+        "LOT", "Step", "Waktu", "Operator QC", "Reaksi (°C)", "Berat Sample (gr)",
+        "Jumlah Titran (mL)", "Faktor Buret", "Faktor NaOH", "AV", "Instruksi"
+    ]
+    df = pd.DataFrame(columns=columns)
+
+style = ttk.Style()
+style.configure("my.TButton", background="#f0f0f0", foreground="#333")
 
 LOT = tk.StringVar()
 Operator = tk.StringVar()
@@ -29,29 +30,24 @@ Reaksi = tk.StringVar()
 Berat_sample = tk.DoubleVar()
 Jumlah_titran = tk.DoubleVar()
 
-entries = [
-    ttk.Entry(app, textvariable=LOT),
-    ttk.Entry(app, textvariable=Operator),
-    ttk.Entry(app, textvariable=Faktor_buret),
-    ttk.Entry(app, textvariable=Faktor_NaOH),
-    ttk.Entry(app, textvariable=Reaksi),
-    ttk.Entry(app, textvariable=Berat_sample),
-    ttk.Entry(app, textvariable=Jumlah_titran),
+input_vars = [
+    ("LOT", LOT),
+    ("Operator", Operator),
+    ("Faktor buret", Faktor_buret),
+    ("Faktor NaOH", Faktor_NaOH),
+    ("Reaksi", Reaksi),
+    ("Berat sample", Berat_sample),
+    ("Jumlah titran", Jumlah_titran),
 ]
 
-for i, label in enumerate(labels):
-    ttk.Label(app, text=label).grid(column=0, row=i, padx=(10, 0), pady=(10, 0), sticky="w")
-    entries[i].grid(column=1, row=i, padx=(0, 10), pady=(10, 0), sticky="ew")
+title_label = ttk.Label(app, text="AV Calculation Application", font=("Helvetica", 16), background="#f0f0f0", foreground="#333")
+title_label.grid(column=0, row=0, columnspan=2, padx=(10, 0), pady=(10, 0))
 
-if os.path.exists("av.xlsx"):
-    columns = pd.read_excel("av.xlsx", nrows=0).columns.tolist()
-else:
-    columns = [
-        "LOT", "Step", "Waktu", "Operator QC", "Reaksi (°C)", "Berat Sample (gr)",
-        "Jumlah Titran (mL)", "Faktor Buret", "Faktor NaOH", "AV", "Instruksi"
-    ]
-
-df = pd.DataFrame(columns=columns)
+for i, (label_text, var) in enumerate(input_vars):
+    label = ttk.Label(app, text=label_text, background="#f0f0f0", foreground="#333")
+    label.grid(column=0, row=i+1, padx=(10, 0), pady=(10, 0), sticky="w")
+    entry = ttk.Entry(app, textvariable=var, width=10)
+    entry.grid(column=1, row=i+1, padx=(0, 10), pady=(10, 0), sticky="e")
 
 def determine_instruksi(reaksi):
     if reaksi == "10":
@@ -61,7 +57,7 @@ def determine_instruksi(reaksi):
     elif reaksi == "packing":
         return "OK"
     else:
-        return ""
+        return "Undefined"
 
 def submit_data():
     global df
@@ -84,15 +80,16 @@ def submit_data():
         "AV": AV,
         "Instruksi": Instruksi,
     }
+    df = df.append(input_data, ignore_index=True)
 
-    new_data = pd.DataFrame([input_data], columns=columns)
-    df = pd.concat([df, new_data], ignore_index=True)
+    for i in treeview.get_children():
+        treeview.delete(i)
 
-    for index, row in new_data.iterrows():
-        treeview.insert("", "end", values=list(row))
+    for index, row in df.iterrows():
+        treeview.insert("", "end", values=(row["Step"], row["Waktu"], row["Reaksi (°C)"], row["Berat Sample (gr)"], row["Jumlah Titran (mL)"], row["AV"], row["Instruksi"]))
 
-submit_button = ttk.Button(app, text="Submit", command=submit_data)
-submit_button.grid(column=1, row=len(labels), padx=(0, 10), pady=(10, 0))
+submit_button = ttk.Button(app, text="Submit", command=submit_data, style="my.TButton")
+submit_button.grid(column=0, row=8, padx=(10, 0), pady=(10, 0))
 
 displayed_columns = [
     "Step", "Waktu", "Reaksi (°C)", "Berat Sample (gr)",
@@ -115,28 +112,20 @@ for column in displayed_columns:
     treeview.heading(column, text=column)
     treeview.column(column, anchor="center", width=column_widths[column])
 
-treeview.grid(column=2, columnspan=2, rowspan=len(labels)+2, padx=10, pady=(10, 0), row=0)
-
-scrollbar = ttk.Scrollbar(app, orient="vertical", command=treeview.yview)
-scrollbar.grid(column=4, row=0, sticky="ns", rowspan=len(labels)+2, pady=(10, 0))
-treeview.configure(yscrollcommand=scrollbar.set)
+treeview.grid(column=2, row=1, rowspan=7, padx=(10, 0), pady=(10, 0), sticky="n")
 
 def export_to_excel():
-    try:
-        if os.path.exists("av.xlsx"):
-            df_existing = pd.read_excel("av.xlsx")
-            df_combined = pd.concat([df_existing, df], ignore_index=True)
-        else:
-            df_combined = df
-
-        df_combined.to_excel("av.xlsx", index=False)
-        messagebox.showinfo("Success", "Data has been exported to av.xlsx.")
+    global df
+    if not df.empty:
+        df.to_excel("av.xlsx", index=False)
+        messagebox.showinfo("Success", "Data exported successfully to av.xlsx")
         app.quit()
-    except Exception as e:
-        messagebox.showerror("Error", f"An error occurred while exporting data: {e}")
+    else:
+        messagebox.showerror("Error", "There is no data to export")
 
-export_button = ttk.Button(app, text="Export", command=export_to_excel)
-export_button.grid(column=2, columnspan=2, row=len(labels)+1, pady=(0, 10))
+export_button = ttk.Button(app, text="Export", command=export_to_excel, style="my.TButton")
+export_button.grid(column=2, row=8, padx=(10, 0), pady=(10, 0), sticky="e")
 
 app.mainloop()
+
 
