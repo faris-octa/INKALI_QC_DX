@@ -4,7 +4,7 @@ from openpyxl import load_workbook
 from datetime import datetime
 
 # initiate excel file
-EXCEL_FILE = abspath('C:/Users/INKALI-PC/project/INKALI_QC_DX/PEG 600DO-IK/av_data.xlsx')
+EXCEL_FILE = abspath('C:/Users/INKALI-PC/project/INKALI_QC_DX/av_data.xlsx')
 wb = load_workbook(EXCEL_FILE)
 ws = wb.active
 
